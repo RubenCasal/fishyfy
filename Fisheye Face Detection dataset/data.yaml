@@ -1,0 +1,12 @@
+names:
+- face
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: face-detection-mik1i
+  url: https://universe.roboflow.com/mohamed-traore-2ekkp/face-detection-mik1i/dataset/27
+  version: 27
+  workspace: mohamed-traore-2ekkp
+test: ./Fisheye Face Detection dataset/test
+train: ./Fisheye Face Detection dataset/train
+val: ./Fisheye Face Detection dataset/valid

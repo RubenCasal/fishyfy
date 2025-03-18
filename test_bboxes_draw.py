@@ -1,8 +1,8 @@
 from generate_new_bboxes import draw_yolo_bboxes, load_yolo_bboxes
 import cv2
-image_path = "./input/image5.jpg"
-label_path = "./input/label5.txt"
-save_result_path = "./output/bbox5.jpg"
+image_path = "./input/image2.jpg"
+label_path = "./input/label2.txt"
+save_result_path = "./output/fisheye_bbox.jpg"
 
 bbox = load_yolo_bboxes(label_path)
 image = cv2.imread(image_path)
