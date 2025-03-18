@@ -2,8 +2,15 @@
 
 ## 📌 Introduction
 This repository provides a script to transform a YOLO dataset from **Roboflow format** into a **fisheye dataset** by applying distortion transformations to both the images and their corresponding bounding boxes. This is useful when training object detection models on images captured by **fisheye cameras**, such as the **Intel RealSense T265**.
-![Original Bounding Box](./output/original_bbox.jpg)
-![Fisheye Bounding Box](./output/fisheye_bbox.jpg)
+### Original Bounding Box
+<p align="center">
+<img src="./output/original_bbox.jpg" alt="Original Bounding Box" width="400">
+</p>
+
+### Fisheye Bounding Box
+<p align="center">
+    <img src="./output/fisheye_bbox.jpg" alt="Fisheye Bounding Box" width="400">
+</p>
 
 ## ⚙️ Prerequisites
 Before running the dataset processing script, ensure you have the following dependencies installed:
@@ -83,7 +90,10 @@ Fisheye transformation is applied by distorting the image radially, simulating t
 2. **Applying Radial Distortion**
    - Each pixel in the image is remapped based on its distance from the center, creating a **barrel distortion effect**.
    - The transformation follows the mathematical model:
-   ![Radial Distortion Equation](./output/fisheye_bbox.jpg)
+      <p align="center">
+    <img src="./output/radial_equation.png" alt="Radial Distortion Equation" width="350">
+   </p>
+   
      Where:
      - \(r\) is the original distance of a pixel from the center.
      - \(R_{\max}\) is the maximum radius (half of the image width or height, whichever is smaller).
