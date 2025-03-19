@@ -65,8 +65,8 @@ To process the dataset and apply the fisheye transformation, follow these steps:
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/RubenCasal/fishyfy.git
-cd fishyfy
+git clone https://github.com/RubenCasal/FishyFy.git
+cd FishyFy
 ```
 
 ### 2️⃣ Run the processing script
