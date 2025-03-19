@@ -67,16 +67,19 @@ cd fishyfy
 ```
 
 ### 2️⃣ Run the processing script
-Execute the `main.py` script, providing the input dataset directory and the output directory for the transformed dataset:
+Execute the `main.py` script, providing the input dataset directory, the output directory and the strength of the fisheye distortion for the transformed dataset:
 
 ```python
 from process_dataset import process_roboflow_dataset
 
+
 INPUT_DATASET = "./Face Detection dataset"
 OUTPUT_DATASET = "./Fisheye Face Detection dataset"
+DISTORTION_STRENGTH = 0.7 # [0-1] value
 
-# Execute the processing
-process_roboflow_dataset(INPUT_DATASET, OUTPUT_DATASET)
+# Ejecutar el procesamiento
+process_roboflow_dataset(INPUT_DATASET, OUTPUT_DATASET, DISTORTION_STRENGTH)
+
 ```
 
 This will generate a new dataset where images and bounding boxes are adapted to the **fisheye perspective**.
