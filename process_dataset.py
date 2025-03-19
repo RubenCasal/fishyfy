@@ -5,7 +5,7 @@ import yaml
 from fisheye_transformation import create_LUT_table, apply_fisheye, resize_to_square
 from generate_new_bboxes import generate_new_bboxes
 
-def process_split(input_dir, output_dir, map_x, map_y):
+def process_split(input_dir, output_dir, map_x, map_y, output_shape):
 
     output_images = os.path.join(output_dir, "images")
     output_labels = os.path.join(output_dir, "labels")
@@ -35,7 +35,11 @@ def process_split(input_dir, output_dir, map_x, map_y):
             # New bounding boxes
             output_label_path = os.path.join(output_labels, filename.replace(".jpg", ".txt").replace(".png", ".txt"))
             generate_new_bboxes(image.shape, label_path, map_x, map_y, output_label_path)
-
+            # transform to gray image
+            #fisheye_img = cv2.cvtColor(fisheye_img, cv2.COLOR_BGR2GRAY)
+            
+            # Resize to desired dimensions
+            fisheye_img = cv2.resize(fisheye_img, output_shape, interpolation=cv2.INTER_AREA)
         
             output_image_path = os.path.join(output_images, filename)
             cv2.imwrite(output_image_path, fisheye_img)
@@ -61,7 +65,7 @@ def update_yaml(input_yaml, output_yaml, output_dir):
 
     print("✅ Archivo data.yaml actualizado.")
 
-def process_roboflow_dataset(input_dir, output_dir, distortion_strength):
+def process_roboflow_dataset(input_dir, output_dir, distortion_strength, output_shape):
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -95,7 +99,7 @@ def process_roboflow_dataset(input_dir, output_dir, distortion_strength):
         input_split_dir = os.path.join(input_dir, split)
         output_split_dir = os.path.join(output_dir, split)
         if os.path.exists(input_split_dir):
-            process_split(input_split_dir, output_split_dir, map_x, map_y)
+            process_split(input_split_dir, output_split_dir, map_x, map_y, output_shape)
 
     # Update data.yaml
     input_yaml = os.path.join(input_dir, "data.yaml")
