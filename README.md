@@ -100,10 +100,10 @@ Fisheye transformation is applied by distorting the image radially, simulating t
    </p>
    
      Where:
-     - \(r\) is the original distance of a pixel from the center.
-     - \(R_{\max}\) is the maximum radius (half of the image width or height, whichever is smaller).
-     - \(s\) is the strength of the fisheye effect.
-     - \(r'\) is the new remapped radius after distortion.
+     - (r) is the original distance of a pixel from the center.
+     - (R_max) is the maximum radius (half of the image width or height, whichever is smaller).
+     - (s) is the strength of the fisheye effect.
+     - (r') is the new remapped radius after distortion.
    
    - This equation increases the perceived distance of points farther from the center while keeping the central points relatively unchanged, mimicking the effect of a fisheye lens.
 
