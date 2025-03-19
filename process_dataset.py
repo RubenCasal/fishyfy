@@ -77,7 +77,7 @@ def update_yaml(input_yaml, output_yaml, output_dir):
 
     print("✅ Archivo data.yaml actualizado.")
 
-def process_roboflow_dataset(input_dir, output_dir):
+def process_roboflow_dataset(input_dir, output_dir, distortion_strength):
     """
     Procesa todo un dataset de Roboflow (train, valid, test) aplicando fisheye con LUT precomputada.
     
@@ -110,7 +110,7 @@ def process_roboflow_dataset(input_dir, output_dir):
         return
 
     first_image = resize_to_square(first_image)
-    map_x, map_y = create_LUT_table(first_image)
+    map_x, map_y = create_LUT_table(first_image,distortion_strength)
 
     # Procesar cada split (train, valid, test) utilizando la LUT precomputada
     for split in ["train", "valid", "test"]:

@@ -46,8 +46,8 @@ def apply_fisheye(image, map_x, map_y):
     
     return cv2.remap(image, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderValue=(0, 0, 0))
 
-def create_LUT_table(image):
+def create_LUT_table(image, distortion_strength=0.6):
 
     h, w = image.shape[:2]
-    map_x, map_y = create_fisheye_mapping(h, w, strength=0.6)
+    map_x, map_y = create_fisheye_mapping(h, w,distortion_strength)
     return map_x, map_y
