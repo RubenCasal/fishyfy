@@ -1,4 +1,7 @@
-# Fisheye YOLO Dataset Processor
+# Fisheye Dataset Transformer
+
+![Python](https://img.shields.io/badge/Python-3.10-yellow.svg)  ![OpenCV](https://img.shields.io/badge/OpenCV-4.11.0-blue.svg)  ![NumPy](https://img.shields.io/badge/NumPy-1.21.5-orange.svg)  
+
 
 ## 📌 Introduction
 This repository provides a script to transform a YOLO dataset from **Roboflow format** into a **fisheye dataset** by applying distortion transformations to both the images and their corresponding bounding boxes. This is useful when training object detection models on images captured by **fisheye cameras**, such as the **Intel RealSense T265**.
@@ -77,7 +80,6 @@ INPUT_DATASET = "./Face Detection dataset"
 OUTPUT_DATASET = "./Fisheye Face Detection dataset"
 DISTORTION_STRENGTH = 0.7 # [0-1] value
 
-# Ejecutar el procesamiento
 process_roboflow_dataset(INPUT_DATASET, OUTPUT_DATASET, DISTORTION_STRENGTH)
 
 ```
