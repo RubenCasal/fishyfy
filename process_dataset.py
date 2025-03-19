@@ -6,16 +6,7 @@ from fisheye_transformation import create_LUT_table, apply_fisheye, resize_to_sq
 from generate_new_bboxes import generate_new_bboxes
 
 def process_split(input_dir, output_dir, map_x, map_y):
-    """
-    Procesa un split del dataset (train, valid, test), aplicando transformación fisheye con una LUT precomputada.
 
-    Parámetros:
-    - input_dir: Directorio que contiene "images" y "labels".
-    - output_dir: Directorio donde se guardarán las imágenes y etiquetas transformadas.
-    - map_x, map_y: LUTs precomputados para la transformación fisheye.
-    """
-
-    # Crear carpetas de salida
     output_images = os.path.join(output_dir, "images")
     output_labels = os.path.join(output_dir, "labels")
     os.makedirs(output_images, exist_ok=True)
@@ -29,65 +20,52 @@ def process_split(input_dir, output_dir, map_x, map_y):
             image_path = os.path.join(input_images, filename)
             label_path = os.path.join(input_labels, filename.replace(".jpg", ".txt").replace(".png", ".txt"))
 
-            # Cargar imagen
+            # Load image
             image = cv2.imread(image_path)
             if image is None:
-                print(f"Error: No se pudo cargar la imagen {filename}")
+                print(f"Error: the image can not be loaded{filename}")
                 continue
 
-            # Redimensionar a cuadrado
+            # Resize image
             image = resize_to_square(image)
 
-            # Aplicar fisheye con la LUT precomputada
+            # Apply LUT
             fisheye_img = apply_fisheye(image, map_x, map_y)
 
-            # Generar nuevas bounding boxes
+            # New bounding boxes
             output_label_path = os.path.join(output_labels, filename.replace(".jpg", ".txt").replace(".png", ".txt"))
             generate_new_bboxes(image.shape, label_path, map_x, map_y, output_label_path)
 
-            # Guardar imagen transformada
+        
             output_image_path = os.path.join(output_images, filename)
             cv2.imwrite(output_image_path, fisheye_img)
 
-            print(f"Procesado: {filename}")
+            print(f"Processed: {filename}")
 
-    print(f"✅ Transformación completa para: {input_dir}")
+    print(f"Fisheye transformation completed: {input_dir}")
 
 def update_yaml(input_yaml, output_yaml, output_dir):
-    """
-    Actualiza el archivo data.yaml con las nuevas rutas del dataset transformado.
 
-    Parámetros:
-    - input_yaml: Ruta del data.yaml original.
-    - output_yaml: Ruta donde se guardará el nuevo data.yaml.
-    - output_dir: Directorio base del nuevo dataset transformado.
-    """
     with open(input_yaml, "r") as f:
         data = yaml.safe_load(f)
 
-    # Actualizar rutas
+    
     data['train'] = os.path.join(output_dir, "train")
     data['val'] = os.path.join(output_dir, "valid")
     if 'test' in data:
         data['test'] = os.path.join(output_dir, "test")
 
-    # Guardar nuevo archivo yaml
+    # save new yaml
     with open(output_yaml, "w") as f:
         yaml.dump(data, f, default_flow_style=False)
 
     print("✅ Archivo data.yaml actualizado.")
 
 def process_roboflow_dataset(input_dir, output_dir, distortion_strength):
-    """
-    Procesa todo un dataset de Roboflow (train, valid, test) aplicando fisheye con LUT precomputada.
-    
-    Parámetros:
-    - input_dir: Directorio del dataset original.
-    - output_dir: Directorio donde se guardará el dataset transformado.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
-    # Obtener el tamaño de la primera imagen del dataset para generar la LUT
+    # Get the first image shape to create LUT
     first_image_path = None
     for split in ["train", "valid", "test"]:
         split_images_dir = os.path.join(input_dir, split, "images")
@@ -100,26 +78,26 @@ def process_roboflow_dataset(input_dir, output_dir, distortion_strength):
             break
 
     if first_image_path is None:
-        print("Error: No se encontró ninguna imagen en el dataset.")
+        print("Error: Any image has been found in the dataset.")
         return
 
-    # Cargar la primera imagen para generar la LUT
+    # Load the first image to create LUT
     first_image = cv2.imread(first_image_path)
     if first_image is None:
-        print("Error: No se pudo cargar la imagen de referencia para generar la LUT.")
+        print("Error: The image can not be loaded.")
         return
 
     first_image = resize_to_square(first_image)
     map_x, map_y = create_LUT_table(first_image,distortion_strength)
 
-    # Procesar cada split (train, valid, test) utilizando la LUT precomputada
+    # Process the data for every split (train, valid, test) 
     for split in ["train", "valid", "test"]:
         input_split_dir = os.path.join(input_dir, split)
         output_split_dir = os.path.join(output_dir, split)
         if os.path.exists(input_split_dir):
             process_split(input_split_dir, output_split_dir, map_x, map_y)
 
-    # Actualizar data.yaml
+    # Update data.yaml
     input_yaml = os.path.join(input_dir, "data.yaml")
     output_yaml = os.path.join(output_dir, "data.yaml")
     update_yaml(input_yaml, output_yaml, output_dir)

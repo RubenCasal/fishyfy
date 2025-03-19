@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 
 def resize_to_square(img: np.ndarray) -> np.ndarray:
-    """Redimensiona la imagen a un formato cuadrado sin padding."""
+
     size = max(img.shape[:2])
     return cv2.resize(img, (size, size), interpolation=cv2.INTER_CUBIC)
 
-def create_fisheye_mapping(h, w, strength=0.7):
-    """Crea el mapeo de transformación fisheye."""
+def create_fisheye_mapping(h, w, strength=0.6):
+    
     center = (w // 2, h // 2)
     R_max = min(center)
     out_size = 2 * R_max
@@ -42,8 +42,7 @@ def create_fisheye_mapping(h, w, strength=0.7):
     return map_x, map_y
 
 def apply_fisheye(image, map_x, map_y):
-    """Aplica la transformación fisheye usando el mapeo precomputado."""
-    
+   
     return cv2.remap(image, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderValue=(0, 0, 0))
 
 def create_LUT_table(image, distortion_strength=0.6):

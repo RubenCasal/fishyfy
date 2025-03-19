@@ -3,7 +3,7 @@ import numpy as np
 from fisheye_transformation import apply_fisheye
 
 def yolo_to_absolute(bboxes, img_w, img_h):
-    """Convierte coordenadas YOLO a píxeles absolutos."""
+  
     abs_boxes = []
     for cls_id, x, y, bw, bh in bboxes:
         x_center = x * img_w
@@ -20,7 +20,7 @@ def yolo_to_absolute(bboxes, img_w, img_h):
     return abs_boxes
 
 def generate_bbox_mask(image_shape, bbox_absolute):
-    """Genera una máscara individual para cada bounding box."""
+    
     masks = []
     for _, x1, y1, x2, y2 in bbox_absolute:
         mask = np.zeros(image_shape[:2], dtype=np.uint8)
@@ -29,25 +29,25 @@ def generate_bbox_mask(image_shape, bbox_absolute):
     return masks
 
 def get_fisheye_yolo_bboxes(fisheye_mask, img_w, img_h, circle_center, circle_radius):
-    """Obtiene las coordenadas YOLO del bounding box transformado y las ajusta dentro del área visible."""
+   
     rows, cols = np.where(fisheye_mask > 0)
     
     if len(rows) == 0:
-        return None  # No se encontraron puntos transformados
+        return None  
     
-    # Corrección del intercambio de coordenadas
+    # Coordinates correction for detecting the object in the fisheye transformation
     x_min, x_max = np.min(cols), np.max(cols)
     y_min, y_max = np.min(rows), np.max(rows)
 
-    # Recortar dentro del área del círculo fisheye
+    # Clip into the circular fisheye transformation
     x_min, x_max = np.clip([x_min, x_max], circle_center[0] - circle_radius, circle_center[0] + circle_radius)
     y_min, y_max = np.clip([y_min, y_max], circle_center[1] - circle_radius, circle_center[1] + circle_radius)
 
-    # Si la *bounding box* está completamente fuera del círculo, la descartamos
+    # If bounding box completely out of the circle, remove it
     if (x_max - x_min) < 5 or (y_max - y_min) < 5:
         return None
 
-    # Convertir a formato YOLO normalizado
+    # Transform to YOLO normalize format
     x_center = ((x_min + x_max) / 2) / img_w
     y_center = ((y_min + y_max) / 2) / img_h
     w_bbox = (x_max - x_min) / img_w
@@ -56,7 +56,7 @@ def get_fisheye_yolo_bboxes(fisheye_mask, img_w, img_h, circle_center, circle_ra
     return [x_center, y_center, w_bbox, h_bbox]
 
 def draw_yolo_bboxes(image, bboxes, color=(0, 255, 0), thickness=2):
-    """Dibuja todas las bounding boxes en la imagen a partir de coordenadas YOLO."""
+  
     h, w = image.shape[:2]
     img_copy = image.copy()
 
@@ -72,41 +72,39 @@ def draw_yolo_bboxes(image, bboxes, color=(0, 255, 0), thickness=2):
     return img_copy
 
 def load_yolo_bboxes(txt_path):
-    """Carga los bounding boxes en formato YOLO desde un archivo .txt."""
+   
     bboxes = []
     with open(txt_path, "r") as f:
         for line in f.readlines():
             values = list(map(float, line.strip().split()))
-            if len(values) == 5:  # Asegurar formato correcto
+            if len(values) == 5:  # Check correct format
                 bboxes.append(values)  # [class_id, x_center, y_center, width, height]
     return bboxes
 
 def generate_new_bboxes(image_shape, bbox_path, map_x, map_y, output_txt_path):
-    """Corrige cada bounding box individualmente en la imagen fisheye."""
     h, w = image_shape[:2]
     
-    # Cargar bounding boxes originales
     bboxes_yolo = load_yolo_bboxes(bbox_path)
     
     if not bboxes_yolo:
-        print("❌ Error: No se encontraron bounding boxes en el archivo.")
+        print("❌ Error: No bounding boxes were founded in the file.")
         return None
     
-    # Definir el área visible (círculo generado por el efecto fisheye)
+    # Visible circle area
     circle_center = (w // 2, h // 2)
-    circle_radius = min(circle_center)  # Radio máximo del círculo visible
+    circle_radius = min(circle_center)  # Max Radius
 
-    # Convertir YOLO a coordenadas absolutas
+    # YOLO absolute coordinates
     bboxes_absolute = yolo_to_absolute(bboxes_yolo, w, h)
 
-    # Generar una máscara individual para cada bounding box
+    # Generate a individual mask for bounding box
     bbox_masks = generate_bbox_mask(image_shape, bboxes_absolute)
 
-    # Aplicar la transformación fisheye a cada máscara por separado
+    # Apply fisheye transformation
     transformed_bboxes = []
     
     for i, bbox in enumerate(bboxes_yolo):
-        cls_id = int(bbox[0])  # Clase del objeto
+        cls_id = int(bbox[0])  # Object class
         mask = bbox_masks[i]
         fisheye_bbox_mask = apply_fisheye(mask, map_x, map_y)
 
@@ -114,12 +112,12 @@ def generate_new_bboxes(image_shape, bbox_path, map_x, map_y, output_txt_path):
         if new_bbox:
             transformed_bboxes.append([cls_id] + new_bbox)
         else:
-            print(f"⚠ Advertencia: La bounding box {bbox} se salió del área visible y fue eliminada.")
+            print(f"⚠ Warning: The bounding box {bbox} was out of the visible area and was eliminated.")
 
-    # Guardar los nuevos bounding boxes en formato YOLO
+    # Save the new bounding boxes in YOLO format
     with open(output_txt_path, "w") as f:
         for bbox in transformed_bboxes:
             f.write(" ".join(f"{val:.6f}" for val in bbox) + "\n")
 
-    print(f"✅ Bounding boxes transformadas guardadas en: {output_txt_path}")
+    print(f"Bounding boxes saved in: {output_txt_path}")
     return transformed_bboxes
